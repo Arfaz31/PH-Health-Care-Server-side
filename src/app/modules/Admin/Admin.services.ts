@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Admin, Prisma, UserStatus } from "@prisma/client";
 import { adminSearchAbleFields } from "./Admin.constant";
 import { paginationHelper } from "../../../helpers/paginationHelpers";
 import prisma from "../../../shared/prisma";
@@ -63,11 +63,86 @@ const getAllFromDB = async (params: any, options: any) => {
   };
 };
 
-const getAdminById = async (id: string) => {
+const getAdminById = async (id: string): Promise<Admin | null> => {
   const result = await prisma.admin.findUnique({
     where: {
       id,
+      isDeleted: false,
     },
+  });
+  return result;
+};
+
+const updateAdminIntoDB = async (
+  id: string,
+  data: Partial<Admin>
+): Promise<Admin> => {
+  await prisma.admin.findUniqueOrThrow({
+    where: {
+      id,
+      isDeleted: false,
+    },
+  });
+  const result = await prisma.admin.update({
+    where: {
+      id,
+    },
+    data,
+  });
+  return result;
+};
+
+const deleteFromDB = async (id: string): Promise<Admin | null> => {
+  await prisma.admin.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  const result = await prisma.$transaction(async (transactionClient) => {
+    const adminDeleteData = await transactionClient.admin.delete({
+      where: {
+        id,
+      },
+    });
+
+    await transactionClient.user.delete({
+      where: {
+        email: adminDeleteData.email,
+      },
+    });
+    return adminDeleteData;
+  });
+  return result;
+};
+
+const softDeleteFromDB = async (id: string): Promise<Admin | null> => {
+  await prisma.admin.findUniqueOrThrow({
+    where: {
+      id,
+      isDeleted: false,
+    },
+  });
+
+  const result = await prisma.$transaction(async (transactionClient) => {
+    const adminDeleteData = await transactionClient.admin.update({
+      where: {
+        id,
+      },
+      data: {
+        isDeleted: true,
+      },
+    });
+
+    await transactionClient.user.update({
+      where: {
+        email: adminDeleteData.email,
+      },
+      data: {
+        status: UserStatus.DELETED,
+      },
+    });
+    return adminDeleteData;
   });
   return result;
 };
@@ -75,4 +150,7 @@ const getAdminById = async (id: string) => {
 export const AdminService = {
   getAllFromDB,
   getAdminById,
+  updateAdminIntoDB,
+  deleteFromDB,
+  softDeleteFromDB,
 };
