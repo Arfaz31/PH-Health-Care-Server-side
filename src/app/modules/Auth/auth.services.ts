@@ -4,6 +4,9 @@ import prisma from "../../../shared/prisma";
 import * as bcrypt from "bcrypt";
 import { config } from "../../config";
 import { Secret } from "jsonwebtoken";
+import emailSender from "./emailSender";
+import AppError from "../../errors/AppError";
+import { StatusCodes } from "http-status-codes";
 
 const login = async (payload: { email: string; password: string }) => {
   const userData = await prisma.user.findUniqueOrThrow({
@@ -111,8 +114,79 @@ const changePassword = async (user: any, payload: any) => {
   };
 };
 
+const forgotPassword = async (payload: { email: string }) => {
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: payload.email,
+      status: UserStatus.Active,
+    },
+  });
+
+  const resetPassToken = jwtHelpers.generateToken(
+    { email: userData.email, role: userData.role },
+    config.reset_pass_secret as Secret,
+    config.reset_pass_expire_in as string
+  );
+  const resetPassLink =
+    config.reset_pass_link + `?userId=${userData.id}&token=${resetPassToken}`;
+  await emailSender(
+    userData.email,
+    `
+    <div>
+        <p>Dear User,</p>
+        <p>Your password reset link 
+            <a href=${resetPassLink}>
+                <button>
+                    Reset Password
+                </button>
+            </a>
+        </p>
+
+    </div>
+    `
+  );
+};
+
+const resetPassword = async (
+  token: string,
+  payload: { id: string; password: string }
+) => {
+  console.log({ token, payload });
+
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      id: payload.id,
+      status: UserStatus.Active,
+    },
+  });
+
+  const isValidToken = jwtHelpers.verifyToken(
+    token,
+    config.reset_pass_secret as Secret
+  );
+
+  if (!isValidToken) {
+    throw new AppError(StatusCodes.FORBIDDEN, "Forbidden!");
+  }
+
+  // hash password
+  const hashPassword = await bcrypt.hash(payload.password, 12);
+
+  // update into database
+  await prisma.user.update({
+    where: {
+      id: payload.id,
+    },
+    data: {
+      password: hashPassword,
+    },
+  });
+};
+
 export const AuthService = {
   login,
   refreshToken,
   changePassword,
+  forgotPassword,
+  resetPassword,
 };
