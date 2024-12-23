@@ -75,6 +75,9 @@ const getAdminById = async (id: string): Promise<Admin | null> => {
       isDeleted: false,
     },
   });
+  if (!result) {
+    throw new Error("user not found");
+  }
   return result;
 };
 
