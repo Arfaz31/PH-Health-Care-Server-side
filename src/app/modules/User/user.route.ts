@@ -10,7 +10,11 @@ import validateRequest from "../../middlewares/validateRequest";
 import { userValidation } from "./user.validation";
 
 const router = express.Router();
-router.get("/", userController.getAllFromDB);
+router.get(
+  "/",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  userController.getAllFromDB
+);
 
 router.post(
   "/create-admin",
@@ -38,6 +42,13 @@ router.post(
   parseBodyForFormData,
   validateRequest(userValidation.createPatientValidaionSchema),
   userController.createPatient
+);
+
+router.patch(
+  "/:id/status",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  validateRequest(userValidation.updateStatusValidationSchema),
+  userController.changeProfileStatus
 );
 
 export const userRoutes = router;
