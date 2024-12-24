@@ -17,8 +17,18 @@ router.post(
   uploadSingleImage,
   validateImageFileRequest(ImageFilesArrayZodSchema),
   parseBodyForFormData,
-  validateRequest(userValidation.createAdmin),
+  validateRequest(userValidation.createAdminValidaionSchema),
   userController.createAdmin
+);
+
+router.post(
+  "/create-doctor",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  uploadSingleImage,
+  validateImageFileRequest(ImageFilesArrayZodSchema),
+  parseBodyForFormData,
+  validateRequest(userValidation.createDoctorValidaionSchema),
+  userController.createDoctor
 );
 
 export const userRoutes = router;

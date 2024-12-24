@@ -29,6 +29,36 @@ const createAdmin = async (req: Request, res: Response) => {
   }
 };
 
+const createDoctor = async (req: Request, res: Response) => {
+  const { password, doctor: DoctorData } = req.body;
+  // console.log(req.body, req.files);
+
+  // Define the type for files inline
+  const files = req.files as any;
+
+  // Extract single files from the fields
+  const profilePhoto = files?.profilePhoto ? files.profilePhoto[0] : undefined;
+  try {
+    const result = await userService.createDoctor(
+      password,
+      DoctorData,
+      profilePhoto
+    );
+    res.status(200).json({
+      success: true,
+      message: "Doctor is created successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: error?.name || "Failed to create doctor",
+      error: error,
+    });
+  }
+};
+
 export const userController = {
   createAdmin,
+  createDoctor,
 };
