@@ -10,6 +10,7 @@ import validateRequest from "../../middlewares/validateRequest";
 import { userValidation } from "./user.validation";
 
 const router = express.Router();
+router.get("/", userController.getAllFromDB);
 
 router.post(
   "/create-admin",
@@ -32,7 +33,6 @@ router.post(
 );
 router.post(
   "/create-patient",
-  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
   uploadSingleImage,
   validateImageFileRequest(ImageFilesArrayZodSchema),
   parseBodyForFormData,

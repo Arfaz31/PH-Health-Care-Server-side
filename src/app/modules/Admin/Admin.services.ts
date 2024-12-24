@@ -34,6 +34,11 @@ const getAllFromDB = async (
     });
   }
 
+  andConditons.push({
+    isDeleted: false,
+  });
+
+  //console.dir(andCondions, { depth: 'inifinity' })
   const whereConditions: Prisma.AdminWhereInput = { AND: andConditons };
   const result = await prisma.admin.findMany({
     where: whereConditions,

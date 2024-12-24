@@ -1,5 +1,10 @@
 import { Request, Response } from "express";
 import { userService } from "./user.services";
+import catchAsync from "../../../shared/catchAsync";
+import pick from "../../../shared/pick";
+import { StatusCodes } from "http-status-codes";
+import sendResponse from "../../../shared/SendResponse";
+import { userFilterableFields } from "./user.constant";
 
 const createAdmin = async (req: Request, res: Response) => {
   const { password, admin: AdminData } = req.body;
@@ -86,8 +91,24 @@ const createPatient = async (req: Request, res: Response) => {
     });
   }
 };
+
+const getAllFromDB = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, userFilterableFields);
+  const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+
+  const result = await userService.getAllUserFromDB(filters, options);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Users are fetched successfully",
+    meta: result.meta,
+    data: result.data,
+  });
+});
+
 export const userController = {
   createAdmin,
   createDoctor,
   createPatient,
+  getAllFromDB,
 };
