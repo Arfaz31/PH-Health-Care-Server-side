@@ -30,5 +30,14 @@ router.post(
   validateRequest(userValidation.createDoctorValidaionSchema),
   userController.createDoctor
 );
+router.post(
+  "/create-patient",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  uploadSingleImage,
+  validateImageFileRequest(ImageFilesArrayZodSchema),
+  parseBodyForFormData,
+  validateRequest(userValidation.createPatientValidaionSchema),
+  userController.createPatient
+);
 
 export const userRoutes = router;

@@ -1,4 +1,4 @@
-import { Admin, Doctor, UserRole } from "@prisma/client";
+import { Admin, Doctor, Patient, UserRole } from "@prisma/client";
 import * as bcrypt from "bcrypt";
 import prisma from "../../../shared/prisma";
 import { TImageFile } from "../../Interfaces/image.interface";
@@ -58,7 +58,37 @@ const createDoctor = async (
 
   return result;
 };
+
+const createPatient = async (
+  password: string,
+  payload: Patient,
+  profilePhoto: TImageFile
+) => {
+  const hashedPassword = await bcrypt.hash(password, 12);
+  const userData = {
+    email: payload.email,
+    password: hashedPassword,
+    role: UserRole.PATIENT,
+  };
+
+  if (profilePhoto) {
+    payload.profilePhoto = profilePhoto.path;
+  }
+  const result = await prisma.$transaction(async (transactionClient) => {
+    await transactionClient.user.create({
+      data: userData,
+    });
+    const createPatientData = await transactionClient.patient.create({
+      data: payload,
+    });
+    return createPatientData;
+  });
+
+  return result;
+};
+
 export const userService = {
   createAdmin,
   createDoctor,
+  createPatient,
 };
