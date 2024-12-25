@@ -31,6 +31,9 @@ const upload = multer({
 export const uploadSingleImage = upload.fields([
   { name: "profilePhoto", maxCount: 1 },
 ]);
+
+export const uploadIcon = upload.fields([{ name: "icon", maxCount: 1 }]);
+
 // export const uploadMultipleImage = upload.fields([
 //   { name: 'postImages', maxCount: 10 },
 // ]);
