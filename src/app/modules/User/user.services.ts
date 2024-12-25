@@ -232,6 +232,58 @@ const getMyProfile = async (user: IAuthUser) => {
 
   return { ...userInfo, ...profileInfo };
 };
+
+const updateMyProfile = async (
+  email: string,
+  payload: any,
+  profilePhoto?: TImageFile
+) => {
+  const userInfo = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: email,
+      status: UserStatus.Active,
+    },
+  });
+
+  if (profilePhoto) {
+    payload.profilePhoto = profilePhoto.path;
+  }
+
+  let profileInfo;
+
+  if (userInfo.role === UserRole.SUPER_ADMIN) {
+    profileInfo = await prisma.admin.update({
+      where: {
+        email: userInfo.email,
+      },
+      data: payload,
+    });
+  } else if (userInfo.role === UserRole.ADMIN) {
+    profileInfo = await prisma.admin.update({
+      where: {
+        email: userInfo.email,
+      },
+      data: payload,
+    });
+  } else if (userInfo.role === UserRole.DOCTOR) {
+    profileInfo = await prisma.doctor.update({
+      where: {
+        email: userInfo.email,
+      },
+      data: payload,
+    });
+  } else if (userInfo.role === UserRole.PATIENT) {
+    profileInfo = await prisma.patient.update({
+      where: {
+        email: userInfo.email,
+      },
+      data: payload,
+    });
+  }
+
+  return { ...profileInfo };
+};
+
 export const userService = {
   createAdmin,
   createDoctor,
@@ -239,4 +291,5 @@ export const userService = {
   getAllUserFromDB,
   changeProfileStatus,
   getMyProfile,
+  updateMyProfile,
 };

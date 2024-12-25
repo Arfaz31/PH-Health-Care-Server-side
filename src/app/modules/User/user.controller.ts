@@ -5,6 +5,7 @@ import pick from "../../../shared/pick";
 import { StatusCodes } from "http-status-codes";
 import sendResponse from "../../../shared/SendResponse";
 import { userFilterableFields } from "./user.constant";
+import { IAuthUser } from "../../Interfaces/common";
 
 const createAdmin = async (req: Request, res: Response) => {
   const { password, admin: AdminData } = req.body;
@@ -118,10 +119,43 @@ const changeProfileStatus = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMyProfile = catchAsync(async (req, res) => {
+  const user = req.user;
+
+  const result = await userService.getMyProfile(user as IAuthUser);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "My profile data fetched!",
+    data: result,
+  });
+});
+
+const updateMyProfile = catchAsync(async (req: Request, res: Response) => {
+  // Define the type for files inline
+  const files = req.files as any;
+  const { email } = req.user;
+  // Extract single files from the fields
+  const profilePhoto = files?.profilePhoto ? files.profilePhoto[0] : undefined;
+  const result = await userService.updateMyProfile(
+    email,
+    req.body,
+    profilePhoto
+  );
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "user profile is updated successfully",
+    data: result,
+  });
+});
 export const userController = {
   createAdmin,
   createDoctor,
   createPatient,
   getAllFromDB,
   changeProfileStatus,
+  getMyProfile,
+  updateMyProfile,
 };
