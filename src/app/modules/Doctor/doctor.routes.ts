@@ -3,7 +3,6 @@ import { DoctorController } from "./doctor.controller";
 
 const router = Router();
 
-// task 3
 router.get("/", DoctorController.getAllFromDB);
-
+router.get("/:id", DoctorController.getByIdFromDB);
 export const doctorRoutes = router;
