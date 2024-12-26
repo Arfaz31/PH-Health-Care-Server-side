@@ -1,4 +1,4 @@
-import { Doctor, Prisma } from "@prisma/client";
+import { Doctor, Prisma, UserStatus } from "@prisma/client";
 import { paginationHelper } from "../../../helpers/paginationHelpers";
 import { IPaginationOptions } from "../../Interfaces/pagination";
 import { IDoctorFilterRequest } from "./doctor.interface";
@@ -27,9 +27,11 @@ const getAllFromDB = async (
     andConditions.push({
       doctorSpecialities: {
         some: {
+          // At least one doctor speciality should match
           specialities: {
             title: {
-              contains: specialties,
+              // Compare the title of the speciality
+              contains: specialties, // Check if it contains the provided value
               mode: "insensitive",
             },
           },
@@ -48,7 +50,7 @@ const getAllFromDB = async (
   }
 
   andConditions.push({
-    isDeleted: false,
+    isDeleted: false, //{ isDeleted: false } ensures only doctors with isDeleted set to false are retrieved.
   });
 
   const whereConditions: Prisma.DoctorWhereInput =
@@ -110,7 +112,48 @@ const getByIdFromDB = async (id: string): Promise<Doctor | null> => {
   return result;
 };
 
+const deleteFromDB = async (id: string): Promise<Doctor> => {
+  return await prisma.$transaction(async (transactionClient) => {
+    const deleteDoctor = await transactionClient.doctor.delete({
+      where: {
+        id,
+      },
+    });
+
+    await transactionClient.user.delete({
+      where: {
+        email: deleteDoctor.email,
+      },
+    });
+
+    return deleteDoctor;
+  });
+};
+
+const softDelete = async (id: string): Promise<Doctor> => {
+  return await prisma.$transaction(async (transactionClient) => {
+    const deleteDoctor = await transactionClient.doctor.update({
+      where: { id },
+      data: {
+        isDeleted: true,
+      },
+    });
+
+    await transactionClient.user.update({
+      where: {
+        email: deleteDoctor.email,
+      },
+      data: {
+        status: UserStatus.DELETED,
+      },
+    });
+
+    return deleteDoctor;
+  });
+};
 export const DoctorService = {
   getAllFromDB,
   getByIdFromDB,
+  deleteFromDB,
+  softDelete,
 };
