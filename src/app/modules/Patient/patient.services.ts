@@ -92,8 +92,9 @@ const updateIntoDB = async (id: string, payload: any) => {
     where: { id },
   });
 
-  const result = await prisma.$transaction(async (transactionClient) => {
-    const updatedPatient = await transactionClient.patient.update({
+  await prisma.$transaction(async (transactionClient) => {
+    //update patient data
+    await transactionClient.patient.update({
       where: { id },
       data: patientData,
       include: {
@@ -101,7 +102,34 @@ const updateIntoDB = async (id: string, payload: any) => {
         medicalReport: true,
       },
     });
+
+    // create or update patient health data
+    if (patientHealthData) {
+      await transactionClient.patientHealthData.upsert({
+        where: {
+          patientId: patientInfo.id,
+        },
+        update: patientHealthData,
+        create: { ...patientHealthData, patientId: patientInfo.id },
+      });
+    }
+    if (medicalReport) {
+      await transactionClient.medicalReport.create({
+        data: { ...medicalReport, patientId: patientInfo.id },
+      });
+    }
   });
+
+  const responseData = await prisma.patient.findUnique({
+    where: {
+      id: patientInfo.id,
+    },
+    include: {
+      patientHealthData: true,
+      medicalReport: true,
+    },
+  });
+  return responseData;
 };
 
 const deleteFromDB = async (id: string): Promise<Patient | null> => {
@@ -163,6 +191,7 @@ const softDelete = async (id: string): Promise<Patient | null> => {
 export const PatientService = {
   getAllFromDB,
   getByIdFromDB,
+  updateIntoDB,
   deleteFromDB,
   softDelete,
 };
