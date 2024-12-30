@@ -18,11 +18,11 @@ const router = express.Router();
 //     DoctorScheduleController.getAllFromDB
 // );
 
-// router.get(
-//     '/my-schedule',
-//     auth(UserRole.DOCTOR),
-//     DoctorScheduleController.getMySchedule
-// )
+router.get(
+  "/my-schedule",
+  auth(UserRole.DOCTOR),
+  DoctorScheduleController.getMySchedule
+);
 
 router.post(
   "/",
