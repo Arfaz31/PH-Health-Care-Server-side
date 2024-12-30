@@ -12,7 +12,7 @@ const getAllFromDB = async (
   const { limit, page, skip } = paginationHelper.calculatePagination(options);
   const { searchTerm, ...filterData } = filters;
 
-  const andConditions = [];
+  const andConditions = []; // Initialize an array to store AND conditions for the Prisma query.
   if (searchTerm) {
     andConditions.push({
       OR: patientSearchableFields.map((field) => ({
