@@ -12,11 +12,11 @@ router.get("/", auth(UserRole.DOCTOR), ScheduleController.getAllFromDB);
  *
  * Get schedule data by id
  */
-// router.get(
-//     '/:id',
-//     auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR),
-//     ScheduleController.getByIdFromDB
-// );
+router.get(
+  "/:id",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR),
+  ScheduleController.getByIdFromDB
+);
 
 router.post(
   "/",
