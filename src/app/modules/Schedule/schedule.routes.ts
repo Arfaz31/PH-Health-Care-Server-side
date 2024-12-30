@@ -29,10 +29,10 @@ router.post(
  *
  * Delete schedule data by id
  */
-// router.delete(
-//     '/:id',
-//     auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
-//     ScheduleController.deleteFromDB
-// );
+router.delete(
+  "/:id",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  ScheduleController.deleteFromDB
+);
 
 export const scheduleRoutes = router;
