@@ -1,6 +1,7 @@
 import catchAsync from "../../../shared/catchAsync";
 import pick from "../../../shared/pick";
 import sendResponse from "../../../shared/SendResponse";
+import { appointmentFilterableFields } from "./apointment.constant";
 import { AppointmentService } from "./appointment.services";
 import { StatusCodes } from "http-status-codes";
 const createAppointment = catchAsync(async (req, res) => {
@@ -35,9 +36,22 @@ const getMyAppointment = catchAsync(async (req, res) => {
   });
 });
 
+const getAllFromDB = catchAsync(async (req, res) => {
+  const filters = pick(req.query, appointmentFilterableFields);
+  const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+  const result = await AppointmentService.getAllFromDB(filters, options);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Appointment retrieval successfully",
+    meta: result.meta,
+    data: result.data,
+  });
+});
+
 export const AppointmentController = {
   createAppointment,
   getMyAppointment,
-  // getAllFromDB,
+  getAllFromDB,
   // changeAppointmentStatus
 };
