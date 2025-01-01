@@ -1,4 +1,5 @@
 import catchAsync from "../../../shared/catchAsync";
+import pick from "../../../shared/pick";
 import sendResponse from "../../../shared/SendResponse";
 import { AppointmentService } from "./appointment.services";
 import { StatusCodes } from "http-status-codes";
@@ -15,9 +16,28 @@ const createAppointment = catchAsync(async (req, res) => {
   });
 });
 
+const getMyAppointment = catchAsync(async (req, res) => {
+  const user = req.user;
+  const filters = pick(req.query, ["status", "paymentStatus"]);
+  const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+
+  const result = await AppointmentService.getMyAppointment(
+    user,
+    filters,
+    options
+  );
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "My Appointment retrive successfully",
+    data: result,
+  });
+});
+
 export const AppointmentController = {
   createAppointment,
-  // getMyAppointment,
+  getMyAppointment,
   // getAllFromDB,
   // changeAppointmentStatus
 };

@@ -19,11 +19,11 @@ const router = express.Router();
 //     AppointmentController.getAllFromDB
 // );
 
-// router.get(
-//     '/my-appointment',
-//     auth(UserRole.PATIENT, UserRole.DOCTOR),
-//     AppointmentController.getMyAppointment
-// )
+router.get(
+  "/my-appointment",
+  auth(UserRole.PATIENT, UserRole.DOCTOR),
+  AppointmentController.getMyAppointment
+);
 
 router.post(
   "/",
