@@ -1,11 +1,8 @@
-import { create } from "domain";
 import prisma from "../../../shared/prisma";
 import { v4 as uuidv4 } from "uuid";
 import { IPaginationOptions } from "../../Interfaces/pagination";
 import { paginationHelper } from "../../../helpers/paginationHelpers";
 import { Prisma, UserRole } from "@prisma/client";
-import { object } from "zod";
-import { equal } from "assert";
 
 const createAppointment = async (user: any, payload: any) => {
   const patientData = await prisma.patient.findUniqueOrThrow({
