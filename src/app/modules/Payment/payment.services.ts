@@ -29,3 +29,10 @@ const initPayment = async (appointmentId: string) => {
     paymentUrl: result.GatewayPageURL,
   };
 };
+
+const validatePayment = async (query: Record<string, unknown>) => {};
+
+export const PaymentService = {
+  initPayment,
+  validatePayment,
+};
