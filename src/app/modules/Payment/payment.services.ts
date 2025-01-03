@@ -1,3 +1,4 @@
+import { PaymentStatus } from "@prisma/client";
 import prisma from "../../../shared/prisma";
 import { SSLService } from "../SSL-Comerz/ssl.services";
 
@@ -21,7 +22,7 @@ const initPayment = async (appointmentId: string) => {
     name: paymentData.appointment.patient.name,
     email: paymentData.appointment.patient.email,
     address: paymentData.appointment.patient.address,
-    phoneNumber: paymentData.appointment.patient.contactNumber,
+    contactNumber: paymentData.appointment.patient.contactNumber,
   };
 
   const result = await SSLService.initPayment(initPaymentData);
@@ -30,7 +31,48 @@ const initPayment = async (appointmentId: string) => {
   };
 };
 
-const validatePayment = async (query: Record<string, unknown>) => {};
+const validatePayment = async (payload: any) => {
+  // if (!payload || !payload.status || !(payload.status === 'VALID')) {
+  //     return {
+  //         message: "Invalid Payment!"
+  //     }
+  // }
+
+  // const response = await SSLService.validatePayment(payload);
+
+  // if (response?.status !== 'VALID') {
+  //     return {
+  //         message: "Payment Failed!"
+  //     }
+  // }
+
+  const response = payload; //production a ei line comment out kore dite hobe and comment out line uncomment korte hobe
+
+  await prisma.$transaction(async (tx) => {
+    const updatedPaymentData = await tx.payment.update({
+      where: {
+        transactionId: response.tran_id,
+      },
+      data: {
+        status: PaymentStatus.PAID,
+        paymentGatewayData: response,
+      },
+    });
+
+    await tx.appointment.update({
+      where: {
+        id: updatedPaymentData.appointmentId,
+      },
+      data: {
+        paymentStatus: PaymentStatus.PAID,
+      },
+    });
+  });
+
+  return {
+    message: "Payment success!",
+  };
+};
 
 export const PaymentService = {
   initPayment,
