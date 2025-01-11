@@ -48,10 +48,26 @@ const getAllFromDB = catchAsync(async (req, res) => {
     data: result.data,
   });
 });
+const changeAppointmentStatus = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  const user = req.user;
 
+  const result = await AppointmentService.changeAppointmentStatus(
+    id,
+    status,
+    user
+  );
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Appointment status changed successfully",
+    data: result,
+  });
+});
 export const AppointmentController = {
   createAppointment,
   getMyAppointment,
   getAllFromDB,
-  // changeAppointmentStatus
+  changeAppointmentStatus,
 };
