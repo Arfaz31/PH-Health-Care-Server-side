@@ -65,6 +65,7 @@ const changeAppointmentStatus = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
 export const AppointmentController = {
   createAppointment,
   getMyAppointment,
