@@ -32,8 +32,20 @@ const patientPrescription = catchAsync(async (req, res) => {
   });
 });
 
+const getAllFromDB = catchAsync(async (req, res) => {
+  const filters = pick(req.query, prescriptionFilterableFields);
+  const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+  const result = await PrescriptionService.getAllFromDB(filters, options);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Prescriptions retrieval successfully",
+    meta: result.meta,
+    data: result.data,
+  });
+});
 export const PrescriptionController = {
   insertIntoDB,
   patientPrescription,
-  // getAllFromDB
+  getAllFromDB,
 };

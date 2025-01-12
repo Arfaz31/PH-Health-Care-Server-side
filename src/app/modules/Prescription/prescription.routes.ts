@@ -7,11 +7,11 @@ import { PrescriptionValidation } from "./prescription.validation";
 
 const router = express.Router();
 
-// router.get(
-//     '/',
-//     auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
-//     PrescriptionController.getAllFromDB
-// );
+router.get(
+  "/",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  PrescriptionController.getAllFromDB
+);
 
 router.get(
   "/my-prescription",
