@@ -3,6 +3,7 @@ import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/SendResponse";
 import { PrescriptionService } from "./prescription.services";
 import pick from "../../../shared/pick";
+import { prescriptionFilterableFields } from "./prescription.constant";
 
 const insertIntoDB = catchAsync(async (req, res) => {
   const user = req.user;
@@ -30,6 +31,7 @@ const patientPrescription = catchAsync(async (req, res) => {
     data: result.data,
   });
 });
+
 export const PrescriptionController = {
   insertIntoDB,
   patientPrescription,
