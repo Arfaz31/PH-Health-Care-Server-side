@@ -2,6 +2,9 @@ import { StatusCodes } from "http-status-codes";
 import prisma from "../../../shared/prisma";
 import AppError from "../../errors/AppError";
 import { IAuthUser } from "../../Interfaces/common";
+import { IPaginationOptions } from "../../Interfaces/pagination";
+import { paginationHelper } from "../../../helpers/paginationHelpers";
+import { Prisma } from "@prisma/client";
 
 const insertIntoDB = async (user: IAuthUser, payload: any) => {
   const patientData = await prisma.patient.findUniqueOrThrow({
@@ -35,6 +38,7 @@ const insertIntoDB = async (user: IAuthUser, payload: any) => {
     });
 
     const averageRating = await tx.review.aggregate({
+      //In this case, _avg: { rating: true } tells Prisma to calculate the average of the rating field across all reviews.
       _avg: {
         rating: true,
       },
@@ -53,7 +57,58 @@ const insertIntoDB = async (user: IAuthUser, payload: any) => {
   });
 };
 
+const getAllReviewFromDB = async (
+  filters: any,
+  options: IPaginationOptions
+) => {
+  const { limit, page, skip } = paginationHelper.calculatePagination(options);
+  const { patientEmail, doctorEmail } = filters;
+
+  const andConditions = [];
+  if (patientEmail) {
+    andConditions.push({
+      patient: {
+        email: patientEmail,
+      },
+    });
+  }
+  if (doctorEmail) {
+    andConditions.push({
+      doctor: {
+        email: doctorEmail,
+      },
+    });
+  }
+
+  const whereConditions: Prisma.ReviewWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+  const result = await prisma.review.findMany({
+    where: whereConditions,
+    skip,
+    take: limit,
+    orderBy:
+      options.sortBy && options.sortOrder
+        ? { [options.sortBy]: options.sortOrder }
+        : { createdAt: "desc" },
+    include: {
+      doctor: true,
+      patient: true,
+    },
+  });
+  const total = await prisma.review.count({
+    where: whereConditions,
+  });
+  return {
+    meta: {
+      total,
+      page,
+      limit,
+    },
+    data: result,
+  };
+};
+
 export const ReviewService = {
   insertIntoDB,
-  // getAllFromDB
+  getAllReviewFromDB,
 };

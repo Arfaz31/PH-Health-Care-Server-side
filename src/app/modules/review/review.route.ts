@@ -7,7 +7,7 @@ import { ReviewValidation } from "./review.validation";
 
 const router = express.Router();
 
-// router.get('/', ReviewController.getAllFromDB);
+router.get("/", ReviewController.getAllFromDB);
 
 router.post(
   "/",
