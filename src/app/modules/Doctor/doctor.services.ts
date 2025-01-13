@@ -63,7 +63,7 @@ const getAllFromDB = async (
       options.sortBy && options.sortOrder
         ? { [options.sortBy]: options.sortOrder }
         : {
-            createdAt: "desc",
+            averageRating: "desc",
           },
     // : { averageRating: 'desc' },
     include: {
