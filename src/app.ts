@@ -11,6 +11,8 @@ const app: Application = express();
 //parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+//This middleware is used to parse URL-encoded data (e.g., Content-Type: application/x-www-form-urlencoded). Typically used for handling form submissions where data is sent in a query //string-like format: name=John+Doe&age=30
+//The parsed data will be available as req.body.
 
 app.use(cors());
 app.use(cookieParser());
