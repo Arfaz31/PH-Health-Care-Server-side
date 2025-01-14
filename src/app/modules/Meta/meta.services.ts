@@ -39,7 +39,7 @@ const getSuperAdminMetaData = async () => {
   });
 
   const barChartData = await getBarChartData();
-  // const pieCharData = await getPieChartData();
+  const pieCharData = await getPieChartData();
 
   return {
     appointmentCount,
@@ -49,6 +49,7 @@ const getSuperAdminMetaData = async () => {
     paymentCount,
     totalRevenue,
     barChartData,
+    pieCharData,
   };
 };
 
@@ -66,7 +67,7 @@ const getAdminMetaData = async () => {
   });
 
   const barChartData = await getBarChartData();
-  // const pieCharData = await getPieChartData();
+  const pieCharData = await getPieChartData();
 
   return {
     appointmentCount,
@@ -75,6 +76,7 @@ const getAdminMetaData = async () => {
     paymentCount,
     totalRevenue,
     barChartData,
+    pieCharData,
   };
 };
 
@@ -209,6 +211,27 @@ const getBarChartData = async () => {
   `;
 
   return appointmentCountByMonth;
+};
+
+const getPieChartData = async () => {
+  const appointmentStatusDistribution = await prisma.appointment.groupBy({
+    by: ["status"],
+    _count: { id: true },
+  });
+
+  // by: ['status']:
+  // Specifies the field status to group the data by.
+  // Each unique value in the status column (e.g., "Pending", "Completed", "Canceled") becomes a group.
+  //_count: { id: true }:
+  //For each group, counts how many records (appointments) are present by counting the id field.
+
+  const formattedAppointmentStatusDistribution =
+    appointmentStatusDistribution.map(({ status, _count }) => ({
+      status,
+      count: Number(_count.id),
+    }));
+
+  return formattedAppointmentStatusDistribution;
 };
 
 export const MetaService = {
