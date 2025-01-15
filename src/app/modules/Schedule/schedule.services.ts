@@ -6,7 +6,7 @@ import { IPaginationOptions } from "../../Interfaces/pagination";
 import { paginationHelper } from "../../../helpers/paginationHelpers";
 
 const convertDateTime = async (date: Date) => {
-  const offset = date.getTimezoneOffset() * 60000;
+  const offset = date.getTimezoneOffset() * 60000; //1 h 60 m 1000 miliseconds
   return new Date(date.getTime() + offset);
 };
 
