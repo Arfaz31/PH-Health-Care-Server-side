@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import jwt, { JwtPayload, Secret } from "jsonwebtoken";
 
 const generateToken = (payload: any, secret: Secret, expiresIn: string) => {

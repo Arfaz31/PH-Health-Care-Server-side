@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { UserStatus } from "@prisma/client";
 import { jwtHelpers } from "../../../helpers/jwtHelper";
 import prisma from "../../../shared/prisma";
@@ -57,6 +58,7 @@ const refreshToken = async (token: string) => {
       config.jwt_refresh_secret as Secret
     );
   } catch (err) {
+    console.log(err);
     throw new Error("You are not authorized!");
   }
 
@@ -153,7 +155,7 @@ const resetPassword = async (
 ) => {
   console.log({ token, payload });
 
-  const userData = await prisma.user.findUniqueOrThrow({
+  await prisma.user.findUniqueOrThrow({
     where: {
       id: payload.id,
       status: UserStatus.Active,

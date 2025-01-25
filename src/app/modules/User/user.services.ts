@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Admin,
   Doctor,
@@ -103,7 +104,7 @@ const getAllUserFromDB = async (params: any, options: IPaginationOptions) => {
   const { searchTerm, ...filterData } = params;
   const andConditons: Prisma.UserWhereInput[] = [];
 
-  if (params.searchTerm) {
+  if (searchTerm) {
     andConditons.push({
       OR: userSearchAbleFields.map((field) => ({
         [field]: {
