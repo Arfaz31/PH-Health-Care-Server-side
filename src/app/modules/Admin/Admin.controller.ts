@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from "express";
 import { AdminService } from "./Admin.services";
 import pick from "../../../shared/pick";

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Admin, Prisma, UserStatus } from "@prisma/client";
 import { adminSearchAbleFields } from "./Admin.constant";
 import { paginationHelper } from "../../../helpers/paginationHelpers";
